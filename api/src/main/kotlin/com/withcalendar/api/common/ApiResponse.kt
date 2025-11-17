@@ -14,12 +14,12 @@ data class ApiResponse<T>(
 
         fun fail(
             code: String,
-            message: String,
+            messageKey: String,
             detail: Any? = null
         ): ApiResponse<Unit> =
             ApiResponse(
                 success = false,
-                error = ApiError(code, message, detail)
+                error = ApiError(code, messageKey, detail)
             )
     }
 }
