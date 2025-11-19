@@ -4,6 +4,7 @@ import com.withcalendar.api.security.CustomAccessDeniedHandler
 import com.withcalendar.api.security.CustomAuthenticationEntryPoint
 import com.withcalendar.api.security.JwtAuthenticationFilter
 import com.withcalendar.api.security.TokenProvider
+import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -73,4 +74,14 @@ class SecurityConfig(
 
         return http.build()
     }
+
+    @Bean
+    fun loggingFilterRegistration(loggingFilter: LoggingFilter): FilterRegistrationBean<LoggingFilter> {
+        return FilterRegistrationBean<LoggingFilter>().apply {
+            filter = loggingFilter
+            order = Int.MIN_VALUE   // 첫 번째로 실행
+            addUrlPatterns("/*")
+        }
+    }
+
 }

@@ -9,3 +9,7 @@ spring:
 
 jwt:
   secret: dGVtcG9yYXJ5LXNlY3JldC1rZXktZm9yLWxvY2FsLWRldg==
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}] %-5level %logger{36} - %msg%n"
