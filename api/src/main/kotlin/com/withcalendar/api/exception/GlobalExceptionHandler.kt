@@ -11,6 +11,7 @@ import org.springframework.validation.BindException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import java.util.*
 
 @RestControllerAdvice
@@ -109,5 +110,19 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(body)
     }
+
+    @ExceptionHandler
+    fun handleNotFound(e: NoResourceFoundException): ResponseEntity<ApiResponse<Unit>> {
+        // 정적 리소스 요청이므로 에러 로그 남기지 않음
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(
+                ApiResponse.fail(
+                    code = "NOT_FOUND",
+                    messageKey = "Resource not found",
+                    detail = e.message
+                )
+            )
+    }
+
 
 }
