@@ -1,4 +1,4 @@
-package com.withcalendar.application.auth
+package com.withcalendar.application.redis
 
 interface RefreshTokenRepository {
     fun save(userId: Long, refreshToken: String, expiresInSeconds: Long)

@@ -3,7 +3,7 @@ package com.withcalendar
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = ["com.withcalendar"])
 class ApiApplication
 
 fun main(args: Array<String>) {

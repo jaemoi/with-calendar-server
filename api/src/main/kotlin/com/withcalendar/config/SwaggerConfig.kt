@@ -1,4 +1,4 @@
-package com.withcalendar.api.config
+package com.withcalendar.config
 
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI

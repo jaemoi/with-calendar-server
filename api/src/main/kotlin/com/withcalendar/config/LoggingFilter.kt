@@ -1,4 +1,5 @@
-package com.withcalendar.api.config
+package com.withcalendar.config
+
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest

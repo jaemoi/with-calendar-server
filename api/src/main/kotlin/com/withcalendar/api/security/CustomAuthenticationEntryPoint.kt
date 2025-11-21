@@ -28,7 +28,7 @@ class CustomAuthenticationEntryPoint : AuthenticationEntryPoint {
     }
 }
 
-// ApiResponse를 JSON 문자열로 변환하는 확장 함수 (없으면 추가)
+// ApiResponse를 JSON 문자열로 변환하는 확장 함수
 fun ApiResponse<*>.toJson(): String {
     return com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
         .writeValueAsString(this)

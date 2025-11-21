@@ -1,4 +1,4 @@
-package com.withcalendar.application.auth
+package com.withcalendar.application.redis
 
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Repository

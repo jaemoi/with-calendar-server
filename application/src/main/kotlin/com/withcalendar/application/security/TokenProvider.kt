@@ -1,4 +1,4 @@
-package com.withcalendar.api.security
+package com.withcalendar.application.security
 
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys

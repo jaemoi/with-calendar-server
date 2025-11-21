@@ -1,15 +1,19 @@
-package com.withcalendar.api.config
+package com.withcalendar.config
 
 import com.withcalendar.api.security.CustomAccessDeniedHandler
 import com.withcalendar.api.security.CustomAuthenticationEntryPoint
 import com.withcalendar.api.security.JwtAuthenticationFilter
-import com.withcalendar.api.security.TokenProvider
+import com.withcalendar.application.security.TokenProvider
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
@@ -20,8 +24,23 @@ import org.springframework.web.cors.CorsConfiguration
 class SecurityConfig(
     private val tokenProvider: TokenProvider,
     private val accessDeniedHandler: CustomAccessDeniedHandler,
-    private val authenticationEntryPoint: CustomAuthenticationEntryPoint
+    private val authenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter
 ) {
+
+
+    @Bean
+    fun userDetailsService(): UserDetailsService {
+        return UserDetailsService { _ ->
+            throw UsernameNotFoundException("Not using UserDetailsService in JWT authentication")
+        }
+    }
+
+    @Bean
+    fun authenticationManager(authConfig: AuthenticationConfiguration): AuthenticationManager {
+        return authConfig.authenticationManager
+    }
+
 
     companion object {
         private val PUBLIC_ENDPOINTS = listOf(
@@ -68,7 +87,7 @@ class SecurityConfig(
             }
 
             .addFilterBefore(
-                JwtAuthenticationFilter(tokenProvider),
+                jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter::class.java
             )
 
