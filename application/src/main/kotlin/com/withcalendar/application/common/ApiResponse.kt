@@ -1,4 +1,4 @@
-package com.withcalendar.api.common
+package com.withcalendar.application.common
 
 data class ApiResponse<T>(
     val success: Boolean,

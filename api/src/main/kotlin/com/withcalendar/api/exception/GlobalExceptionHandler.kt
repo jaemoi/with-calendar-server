@@ -1,7 +1,7 @@
 package com.withcalendar.api.exception
 
-import com.withcalendar.api.common.ApiResponse
-import com.withcalendar.application.exception.BusinessException
+import com.withcalendar.application.common.ApiResponse
+import com.withcalendar.application.exception.business.BusinessException
 import com.withcalendar.application.exception.ErrorCode
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus

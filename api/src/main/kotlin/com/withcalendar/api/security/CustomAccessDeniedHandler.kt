@@ -1,7 +1,7 @@
 package com.withcalendar.api.security
 
 
-import com.withcalendar.api.common.ApiResponse
+import com.withcalendar.application.common.ApiResponse
 import com.withcalendar.application.exception.ErrorCode
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
