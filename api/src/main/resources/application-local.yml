@@ -15,6 +15,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    open-in-view: false
 
 # Base64 인코딩된 dummy key. (실서버에서는 secret을 프로필마다 override)
 jwt:
