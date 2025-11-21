@@ -1,6 +1,7 @@
 package com.withcalendar.api.exception
 
 import com.withcalendar.application.common.ApiResponse
+import com.withcalendar.application.common.LoggingUtil
 import com.withcalendar.application.exception.business.BusinessException
 import com.withcalendar.application.exception.ErrorCode
 import mu.KotlinLogging
@@ -18,13 +19,21 @@ import java.util.*
 class GlobalExceptionHandler {
     private val logger = KotlinLogging.logger {}
 
+    /**
+     * 1) 비즈니스 예외 (개발자가 명시적으로 throw한 것)
+     *    클라이언트에게 알려줘야 하는 "정상적인 실패"이므로 WARN 로그만 남김
+     */
     @ExceptionHandler
     fun handleBusiness(e: BusinessException): ResponseEntity<ApiResponse<Unit>> {
-        val code = e.errorCode.code
-        val messageKey = e.customMessage ?: e.errorCode.messageKey
-        val detail = e.detail
 
-        val body = ApiResponse.fail(code, messageKey, detail)
+        // 비즈니스 예외는 WARN으로만 남긴다
+        LoggingUtil.logBusinessError(logger, e)
+
+        val body = ApiResponse.fail(
+            code = e.errorCode.code,
+            messageKey = e.customMessage ?: e.errorCode.messageKey,
+            detail = e.detail
+        )
         return ResponseEntity.status(e.errorCode.status).body(body)
     }
 
@@ -37,7 +46,6 @@ class GlobalExceptionHandler {
     fun handleMethodArgumentNotValid(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Unit>> {
 
         val fieldError = e.bindingResult.fieldErrors.firstOrNull()
-
         val detail = fieldError?.let {
             mapOf(
                 "field" to it.field,
@@ -54,11 +62,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
+    /**
+     * 3) @ModelAttribute 검증 실패
+     */
     @ExceptionHandler
     fun handleBindException(e: BindException): ResponseEntity<ApiResponse<Unit>> {
 
         val fieldError = e.bindingResult.fieldErrors.firstOrNull()
-
         val detail = fieldError?.let {
             mapOf(
                 "field" to it.field,
@@ -77,7 +87,7 @@ class GlobalExceptionHandler {
 
 
     /**
-     * 3) JSON 파싱 예외
+     * 4) JSON 파싱 예외
      * JSON 문법 오류 / Enum 값 에러 / 숫자 타입 오류 등
      */
     @ExceptionHandler
@@ -94,23 +104,9 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
-    @ExceptionHandler(Exception::class)
-    fun handleException(e: Exception): ResponseEntity<ApiResponse<Unit>> {
-
-        val errorId = UUID.randomUUID().toString()
-
-        logger.error("[ERROR-ID=$errorId] Unexpected exception", e)
-
-        val body = ApiResponse.fail(
-            code = ErrorCode.INTERNAL_ERROR.code,
-            messageKey = ErrorCode.INTERNAL_ERROR.messageKey,
-            detail = mapOf("errorId" to errorId)
-        )
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(body)
-    }
-
+    /**
+     * 5) 404 (Spring MVC에서 발생)
+     */
     @ExceptionHandler
     fun handleNotFound(e: NoResourceFoundException): ResponseEntity<ApiResponse<Unit>> {
         // 정적 리소스 요청이므로 에러 로그 남기지 않음
@@ -122,6 +118,22 @@ class GlobalExceptionHandler {
                     detail = e.message
                 )
             )
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(e: Exception): ResponseEntity<ApiResponse<Unit>> {
+
+        val eventId = LoggingUtil.logUnexpectedError(logger, e)
+
+
+        val body = ApiResponse.fail(
+            code = ErrorCode.INTERNAL_ERROR.code,
+            messageKey = ErrorCode.INTERNAL_ERROR.messageKey,
+            detail = mapOf("eventId" to eventId)
+        )
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(body)
     }
 
 

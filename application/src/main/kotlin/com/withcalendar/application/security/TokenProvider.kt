@@ -3,7 +3,10 @@ package com.withcalendar.application.security
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Component
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.util.*
 
 @Component
@@ -80,4 +83,21 @@ class TokenProvider(
     fun getUserId(token: String): Long {
         return parseClaims(token).subject.toLong()
     }
+
+    fun getAuthentication(token: String): Authentication {
+        val userId = getUserId(token)
+
+        // 우리는 권한 정보를 JWT에 넣지 않으므로 기본 USER 권한만 부여
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
+
+        // principal: userId만 가지는 커스텀 principal
+        val principal = userId.toString()
+
+        return UsernamePasswordAuthenticationToken(
+            principal,
+            null,       // credentials는 null
+            authorities
+        )
+    }
+
 }
