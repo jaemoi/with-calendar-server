@@ -1,9 +1,9 @@
 package com.withcalendar.application.common
 
-import org.slf4j.Logger
-import org.slf4j.MDC
-import org.apache.commons.lang3.exception.ExceptionUtils
+import mu.KLogger
 import org.apache.commons.codec.binary.Base32
+import org.apache.commons.lang3.exception.ExceptionUtils
+import org.slf4j.MDC
 import java.nio.ByteBuffer
 
 object LoggingUtil {
@@ -17,7 +17,7 @@ object LoggingUtil {
     }
 
     fun logUnexpectedError(
-        logger: Logger,
+        logger: KLogger,
         ex: Exception,
         param: Any? = null
     ): String {
@@ -45,8 +45,9 @@ object LoggingUtil {
         return eventId ?: ""
     }
 
-    fun logBusinessError(logger: Logger, ex: Throwable) {
+    fun logBusinessError(logger: KLogger, ex: Throwable): String {
         val eventId = MDC.get("eventId")
         logger.warn("[BusinessError][$eventId] ${ex.message}")
+        return eventId ?: ""
     }
 }

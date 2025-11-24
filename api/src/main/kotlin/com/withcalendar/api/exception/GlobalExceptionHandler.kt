@@ -2,8 +2,8 @@ package com.withcalendar.api.exception
 
 import com.withcalendar.application.common.ApiResponse
 import com.withcalendar.application.common.LoggingUtil
-import com.withcalendar.application.exception.business.BusinessException
 import com.withcalendar.application.exception.ErrorCode
+import com.withcalendar.application.exception.business.BusinessException
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -27,7 +27,6 @@ class GlobalExceptionHandler {
     fun handleBusiness(e: BusinessException): ResponseEntity<ApiResponse<Unit>> {
 
         // 비즈니스 예외는 WARN으로만 남긴다
-        LoggingUtil.logBusinessError(logger, e)
 
         val body = ApiResponse.fail(
             code = e.errorCode.code,
@@ -45,11 +44,14 @@ class GlobalExceptionHandler {
     @ExceptionHandler
     fun handleMethodArgumentNotValid(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Unit>> {
 
+        LoggingUtil.logBusinessError(logger, e)
+
         val fieldError = e.bindingResult.fieldErrors.firstOrNull()
         val detail = fieldError?.let {
             mapOf(
                 "field" to it.field,
-                "reason" to (it.defaultMessage ?: "Invalid value")
+                "reason" to (it.defaultMessage ?: "Invalid value"),
+                "rejectedValue" to it.rejectedValue
             )
         }
 
@@ -68,11 +70,14 @@ class GlobalExceptionHandler {
     @ExceptionHandler
     fun handleBindException(e: BindException): ResponseEntity<ApiResponse<Unit>> {
 
+        LoggingUtil.logBusinessError(logger, e)
+
         val fieldError = e.bindingResult.fieldErrors.firstOrNull()
         val detail = fieldError?.let {
             mapOf(
                 "field" to it.field,
-                "reason" to (it.defaultMessage ?: "Invalid value")
+                "reason" to (it.defaultMessage ?: "Invalid value"),
+                "rejectedValue" to it.rejectedValue
             )
         }
 
@@ -91,14 +96,18 @@ class GlobalExceptionHandler {
      * JSON 문법 오류 / Enum 값 에러 / 숫자 타입 오류 등
      */
     @ExceptionHandler
-    fun handleJsonParse(e: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Unit>> {
+    fun handleJsonParse(e: HttpMessageNotReadableException):
+            ResponseEntity<ApiResponse<Unit>> {
 
-        logger.warn { "JSON Parse Error: $e" }
+        val eventId = LoggingUtil.logBusinessError(logger, e)
 
         val body = ApiResponse.fail(
-            code = ErrorCode.INVALID_INPUT.code,
-            messageKey = "error.invalid_json",  // 필요하면 ErrorCode에 추가
-            detail = mapOf("reason" to "Invalid JSON format")
+            code = ErrorCode.INVALID_JSON.code,
+            messageKey = ErrorCode.INVALID_JSON.messageKey,
+            detail = mapOf(
+                "reason" to "Invalid JSON format",
+                "eventId" to eventId
+            )
         )
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
@@ -113,8 +122,8 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(
                 ApiResponse.fail(
-                    code = "NOT_FOUND",
-                    messageKey = "Resource not found",
+                    code = ErrorCode.RESOURCE_NOT_FOUND.code,
+                    messageKey = ErrorCode.RESOURCE_NOT_FOUND.messageKey,
                     detail = e.message
                 )
             )
