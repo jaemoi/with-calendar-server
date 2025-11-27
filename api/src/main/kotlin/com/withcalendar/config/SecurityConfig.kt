@@ -3,7 +3,6 @@ package com.withcalendar.config
 import com.withcalendar.api.security.CustomAccessDeniedHandler
 import com.withcalendar.api.security.CustomAuthenticationEntryPoint
 import com.withcalendar.api.security.JwtAuthenticationFilter
-import com.withcalendar.application.security.TokenProvider
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,7 +21,6 @@ import org.springframework.web.cors.CorsConfiguration
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val tokenProvider: TokenProvider,
     private val accessDeniedHandler: CustomAccessDeniedHandler,
     private val authenticationEntryPoint: CustomAuthenticationEntryPoint,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter
