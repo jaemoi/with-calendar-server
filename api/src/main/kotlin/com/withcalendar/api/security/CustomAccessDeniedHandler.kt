@@ -26,7 +26,7 @@ class CustomAccessDeniedHandler : AccessDeniedHandler {
             detail = "You do not have permission to access this resource"
         )
 
-        response.status = ErrorCode.FORBIDDEN.status
+        response.status = ErrorCode.FORBIDDEN.status.value()
         response.contentType = "application/json;charset=UTF-8"
         response.writer.write(body.toJson())
     }

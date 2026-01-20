@@ -22,7 +22,7 @@ class CustomAuthenticationEntryPoint : AuthenticationEntryPoint {
             detail = "Authorization header missing or invalid"
         )
 
-        response.status = ErrorCode.UNAUTHORIZED.status
+        response.status = ErrorCode.UNAUTHORIZED.status.value()
         response.contentType = "application/json;charset=UTF-8"
         response.writer.write(body.toJson())
     }
